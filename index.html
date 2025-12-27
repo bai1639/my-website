@@ -1,5 +1,6 @@
 
 cd my-website
+```html name=index.html
 <!doctype html>
 <html lang="zh-CN">
 <head>
@@ -31,32 +32,24 @@ cd my-website
       overflow:hidden;
     }
 
-    /* decorative blobs */
     .blob{ position:absolute; width:520px; height:520px; border-radius:50%; filter: blur(60px); opacity:0.16; mix-blend-mode: screen; pointer-events:none; }
     .blob.a{background:linear-gradient(90deg,#ff6b6b,#ffb86b); left:-120px; top:-80px; animation: floatA 9s ease-in-out infinite;}
     .blob.b{background:linear-gradient(90deg,#5bd3ff,#6b8cff); right:-140px; bottom:-100px; animation: floatB 11s ease-in-out infinite;}
     @keyframes floatA{0%{transform:translateY(0)}50%{transform:translateY(-24px)}100%{transform:translateY(0)}}
     @keyframes floatB{0%{transform:translateY(0)}50%{transform:translateY(28px)}100%{transform:translateY(0)}}
 
-    /* center book */
     .book-wrap{ perspective:1400px; width:min(720px,92vw); max-width:92vw; height:420px; display:grid; place-items:center; }
     .book{ width:100%; max-width:720px; height:100%; position:relative; transform-style:preserve-3d; }
-    .book-shell{ position:absolute; inset:0; border-radius:16px; background: linear-gradient(180deg,#fff,#f6f3f0); box-shadow: 0 24px 60px rgba(2,6,23,0.55); display:flex; align-items:center; justify-content:center; transform-origin:left center; transition: transform 900ms cubic-bezier(.2,.9,.28,1); overflow:hidden; padding:28px; color:#111; }
-    .page{ width:100%; height:100%; background:linear-gradient(180deg,#fff,#fbf8f6); border-radius:12px; position:absolute; left:10px; top:10px; box-shadow: inset 0 -10px 36px rgba(0,0,0,0.03); transform-origin:left center; backface-visibility:hidden; display:flex; flex-direction:column; padding:34px; }
-    .page.back{ transform: rotateY(-180deg); left:16px; top:16px; }
+    .book-shell{ position:absolute; inset:0; border-radius:16px; background: linear-gradient(180deg,#fff,#f6f3f0); box-shadow: 0 24px 60px rgba(2,6,23,0.55); display:flex; align-items:center; justify-content:center; transform-origin:center; transition: transform 900ms cubic-bezier(.2,.9,.28,1); overflow:hidden; padding:28px; color:#111; }
+    .page{ width:100%; height:100%; background:linear-gradient(180deg,#fff,#fbf8f6); border-radius:12px; box-shadow: inset 0 -10px 36px rgba(0,0,0,0.03); display:flex; align-items:center; justify-content:center; text-align:center; padding:34px; }
 
-    .book.open .book-shell{ transform: rotateY(-18deg) translateX(-12px) scale(1.01); }
-    .book.open .page.front{ transform: rotateY(-160deg); box-shadow: -36px 18px 100px rgba(2,6,23,0.5); }
-    .book.open .page.back{ transform: rotateY(0deg); }
+    .book.open .book-shell{ transform: rotateY(-10deg) scale(1.01); }
 
-    .answer{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; text-align:center; }
     .text{ font-family:"Source Serif 4", serif; font-size:28px; line-height:1.45; color:#111; opacity:0; transform: translateY(8px); transition: all 420ms cubic-bezier(.2,.9,.28,1) 120ms; white-space:pre-wrap; max-width:86%; word-break:break-word; }
-    .show .text{ opacity:1; transform: translateY(0); }
+    .visible { opacity:1; transform: translateY(0); }
 
-    /* bookmark detail */
     .bookmark{ position:absolute; right:18px; top:18px; width:44px; height:56px; background:linear-gradient(180deg,#fff3e6,#fff); border-radius:6px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); display:grid; place-items:center; font-weight:700; color:var(--accent); }
 
-    /* confetti canvas */
     canvas#confetti{ position:fixed; inset:0; pointer-events:none; z-index:40; }
 
     @media (max-width:560px){
@@ -74,25 +67,17 @@ cd my-website
 
   <div class="book-wrap" role="main" aria-live="polite">
     <div class="book" id="book">
-      <div class="book-shell">
-        <div class="page front" id="front">
+      <div class="book-shell" id="shell">
+        <div class="page" id="page">
           <div class="bookmark" aria-hidden="true">今</div>
-          <div class="answer" id="answerFront" role="status" aria-live="polite">
-            <div class="text" id="answerText"></div>
-          </div>
+          <div class="text" id="answerText" aria-live="polite" aria-atomic="true"></div>
         </div>
-
-        <div class="page back" id="back" aria-hidden="true">
-          <div style="margin:auto; text-align:center; max-width:84%;">
-            <div style="font-family:'Source Serif 4', serif; font-size:20px; color:#222;">—</div>
-          </div>
-        </div>
-
       </div>
     </div>
   </div>
 
   <script>
+    // 简洁的答案库（可自行扩充）
     const ANSWERS = [
       "真心与时间，会让答案逐渐明朗。",
       "放下结局的执念，去感受当下的温柔。",
@@ -101,7 +86,7 @@ cd my-website
       "把每天能控制的小事做到极致，机会会靠近。",
       "换个角度看问题，常常会发现新的路径。",
       "稳健优于冒进，长期回报来自持续投入。",
-      "小的改变（睡眠 / 饮食 /走动）常常带来巨大差别。",
+      "小的改变（睡眠/饮食/走动）常常带来巨大差别。",
       "听从直觉，但用理智为它把关。",
       "有时等待也是一种答案。",
       "你已经比你想象的更接近答案了。",
@@ -111,15 +96,14 @@ cd my-website
       "保持一致的作息，健康会悄然回报你。"
     ];
 
-    const answerText = document.getElementById('answerText');
-    const answerFront = document.getElementById('answerFront');
+    const answerEl = document.getElementById('answerText');
     const bookEl = document.getElementById('book');
-
+    const shell = document.getElementById('shell');
     const confettiCanvas = document.getElementById('confetti');
     const ctx = confettiCanvas.getContext && confettiCanvas.getContext('2d');
 
     function resizeCanvas(){
-      if(!ctx) return;
+      if (!ctx) return;
       const dpr = Math.max(1, window.devicePixelRatio || 1);
       confettiCanvas.width = Math.round(window.innerWidth * dpr);
       confettiCanvas.height = Math.round(window.innerHeight * dpr);
@@ -133,12 +117,12 @@ cd my-website
 
     function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
-    function typeText(el, text, min=8, max=28){
+    function typeText(el, text, min=8, max=30){
       return new Promise(async (resolve) => {
         el.textContent = '';
-        for(let i=0;i<text.length;i++){
+        for (let i = 0; i < text.length; i++) {
           el.textContent += text[i];
-          const t = min + Math.random()*(max-min);
+          const t = min + Math.random() * (max - min);
           await new Promise(r => setTimeout(r, t));
         }
         resolve();
@@ -179,24 +163,34 @@ cd my-website
     }
 
     async function reveal(){
+      // 选择答案并执行动画
       const text = pickRandom(ANSWERS);
-      // open book
+      // 轻微打开效果
       bookEl.classList.add('open');
-      // ensure previous hidden
-      answerFront.classList.remove('show');
-      await new Promise(r => setTimeout(r, 260));
-      // type
-      await typeText(answerText, text, 10, 36);
-      // show
-      answerFront.classList.add('show');
+      // 确保隐藏态
+      answerEl.classList && answerEl.classList.remove('visible');
+      // 稍作等待确保样式应用
+      await new Promise(r => setTimeout(r, 200));
+      // 打字
+      await typeText(answerEl, text, 10, 36);
+      // 显示（平滑）
+      answerEl.classList.add('visible');
       // confetti
       sparkleConfetti();
     }
 
-    // Auto reveal on load
-    window.addEventListener('load', () => {
-      // small delay to ensure fonts/styles ready then reveal
-      setTimeout(reveal, 320);
+    // 如果字体或资源未加载较慢，仍保证一定时间后强制写入文本（避免显示空白或占位符）
+    window.addEventListener('load', async () => {
+      // 先短延迟再揭晓，避免闪烁
+      setTimeout(reveal, 200);
+      // 2.5s 后若还没有文本（极端情况），直接写入一次保证可见
+      setTimeout(() => {
+        if (!answerEl.textContent || answerEl.textContent.trim() === '') {
+          answerEl.textContent = pickRandom(ANSWERS);
+          answerEl.classList.add('visible');
+          bookEl.classList.add('open');
+        }
+      }, 2500);
     });
   </script>
 </body>
