@@ -5,7 +5,7 @@ cd my-website
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>答案之书 — 自动揭晓（已修复）</title>
+  <title>答案之书 — 自动揭晓（修复版）</title>
   <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..72,400;8..72,700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -20,6 +20,7 @@ cd my-website
         --muted:#4b5563; --glass: rgba(0,0,0,0.03);
       }
     }
+
     html,body{height:100%; margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
     body{
       background: radial-gradient(1200px 600px at 10% 20%, rgba(255,200,160,0.06), transparent),
@@ -57,7 +58,7 @@ cd my-website
     .book.open .page.back { transform: rotateY(0deg); }
 
     .reveal{ margin-top:12px; display:grid; gap:10px; align-content:center; flex:1; }
-    .answer{ font-family:"Source Serif 4", serif; font-size:20px; color:#222; background:linear-gradient(180deg,#fff,#fff); padding:16px; border-radius:10px; min-height:96px; display:grid; align-items:center; justify-items:center; text-align:center; box-shadow: 0 8px 30px rgba(11,22,40,0.06); overflow:hidden; position:relative; }
+    .answer{ font-family:"Source Serif 4", serif; font-size:20px; color:#111; background:linear-gradient(180deg,#fff,#fff); padding:16px; border-radius:10px; min-height:96px; display:grid; align-items:center; justify-items:center; text-align:center; box-shadow: 0 8px 30px rgba(11,22,40,0.06); overflow:hidden; position:relative; }
     .answer .text{ color:#111; opacity:0; transform:translateY(6px); transition: all 420ms cubic-bezier(.2,.9,.28,1) 120ms; line-height:1.5; padding:0 6px; white-space:pre-wrap; word-break:break-word; }
     .answer.show .text{ opacity:1; transform:translateY(0); }
 
@@ -88,14 +89,11 @@ cd my-website
       <div class="brand">
         <div class="logo">答</div>
         <div>
-          <h1 id="main-title">答案之书 <span style="font-size:13px; color:var(--muted); font-weight:600;">— 自动揭晓（已修复）</span></h1>
-          <p class="lead">打开页面即可自动展示一句引导性的答案；保留“再来一条”以获取新灵感。</p>
+          <h1 id="main-title">答案之书 <span style="font-size:13px; color:var(--muted); font-weight:600;">— 自动揭晓</span></h1>
+          <p class="lead">打开页面即可随机揭晓一句启发性的建议。点击“再来一条”获取新内容。</p>
         </div>
       </div>
-
-      <p style="color:var(--muted); margin-top:12px;">如果你想要页面在打开时显示特定类别的答案（例如只显示“感情”类），告诉我即可我做定制。</p>
-
-      <footer class="note">保存为 index.html 后直接打开或部署到任意静态站点。</footer>
+      <p style="color:var(--muted); margin-top:12px;">如果你希望页面每次固定显示某一类（如“感情”），告诉我我会改成固定类别版本。</p>
     </section>
 
     <aside class="book-wrap" aria-label="答案书">
@@ -106,11 +104,11 @@ cd my-website
 
             <div class="reveal">
               <div class="answer" id="answerFront" role="status" aria-live="polite">
-                <div class="text" id="answerText">正在准备答案……</div>
+                <div class="text" id="answerText">——</div>
               </div>
 
               <div class="meta">
-                <div id="category" style="text-transform:capitalize;color:var(--muted)">类别：自动</div>
+                <div id="category" style="text-transform:capitalize;color:var(--muted)">类别：—</div>
                 <div style="display:flex; gap:8px;">
                   <button id="anotherBtn" class="btn ghost" aria-label="再来一条">再来一条</button>
                 </div>
@@ -119,11 +117,11 @@ cd my-website
           </div>
 
           <div class="page back" id="back" aria-hidden="true">
-            <div style="font-size:14px;color:var(--muted);margin-bottom:10px;">答案之书 · 说明</div>
+            <div style="font-size:14px;color:var(--muted);margin-bottom:10px;">说明</div>
             <div style="flex:1; display:flex; align-items:center; justify-content:center;">
               <div style="text-align:center; max-width:320px;">
-                <h2 style="font-family:'Source Serif 4', serif; margin:6px 0;">自动揭晓</h2>
-                <p style="color:var(--muted); line-height:1.6; font-size:15px;">页面会从内置语句库中抽取一句启发性的建议。每次刷新或点击“再来一条”生成新答案。</p>
+                <h2 style="font-family:'Source Serif 4', serif; margin:6px 0;">已自动揭晓</h2>
+                <p style="color:var(--muted); line-height:1.6; font-size:15px;">页面从内置答案库随机抽取并展示一句。可刷新或点击「再来一条」。</p>
               </div>
             </div>
             <div style="display:flex; gap:8px; justify-content:flex-end;">
@@ -142,41 +140,47 @@ cd my-website
         "真心与时间，会让答案逐渐明朗。",
         "放下结局的执念，去感受当下的温柔。",
         "勇敢一点，坦诚一次，结果会更清晰。",
-        "不妨先做好自己，再去决定彼此的下一步。"
+        "不妨先做好自己，再去决定彼此的下一步。",
+        "听见自己的需要，才有能力选择对的方向。"
       ],
       career: [
         "把每天能控制的小事做到极致，机会会靠近。",
         "换个角度看问题，常常会发现新的路径。",
         "风险与成长并存，衡量后再踏出下一步。",
-        "对外界的判断要有，但内心的声音更重要。"
+        "对外界的判断要有，但内心的声音更重要。",
+        "行动会带来信息，信息会带来方向。"
       ],
       money: [
         "稳健优于冒进，长期回报来自持续投入。",
         "做好边界与预案，财富会更可持续。",
         "把一部分钱用于学习，这是对未来最保险的赌注。",
-        "现在的节制，可能换来未来更多选择。"
+        "现在的节制，可能换来未来更多选择。",
+        "小幅度的持续积累，比一次性博弈更可靠。"
       ],
       health: [
         "小的改变（睡眠 / 饮食 /走动）常常带来巨大差别。",
         "身体的提醒不要忽视，早一些处理更省力。",
         "给自己设置简单的日常习惯，渐进胜过暴力改变。",
-        "情绪与身体常常互相影响，关照两者。"
+        "情绪与身体常常互相影响，关照两者。",
+        "保持一致的作息，健康会悄然回报你。"
       ],
       yesno: [
         "是的，时机在你这一边。",
         "不，现在还不是最合适的时机。",
         "答案并不重要，重要的是你的内心是否平静。",
-        "有可能，但需要你主动推动。"
+        "有可能，但需要你主动推动。",
+        "保持观察，短期内会有更明确的信号。"
       ],
       generic: [
         "听从直觉，但用理智为它把关。",
         "有时等待也是一种答案。",
         "你已经比你想象的更接近答案了。",
-        "跨出一步，视野才会不一样。"
+        "跨出一步，视野才会不一样。",
+        "把目光放在能控制之事，其他顺其自然。"
       ]
     };
 
-    // DOM 元素
+    // DOM
     const answerText = document.getElementById('answerText');
     const answerFront = document.getElementById('answerFront');
     const categoryEl = document.getElementById('category');
@@ -186,21 +190,15 @@ cd my-website
     const confettiCanvas = document.getElementById('confetti');
     const ctx = confettiCanvas.getContext('2d');
 
-    // 画布适配 DPI（稳健）
+    // 画布 DPI 适配
     function resizeCanvas(){
-      try {
-        const dpr = Math.max(1, window.devicePixelRatio || 1);
-        confettiCanvas.width = Math.round(window.innerWidth * dpr);
-        confettiCanvas.height = Math.round(window.innerHeight * dpr);
-        confettiCanvas.style.width = window.innerWidth + 'px';
-        confettiCanvas.style.height = window.innerHeight + 'px';
-        ctx.resetTransform();
-        ctx.scale(dpr, dpr);
-      } catch (e) {
-        // old browsers fallback
-        confettiCanvas.width = window.innerWidth;
-        confettiCanvas.height = window.innerHeight;
-      }
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      confettiCanvas.width = Math.round(window.innerWidth * dpr);
+      confettiCanvas.height = Math.round(window.innerHeight * dpr);
+      confettiCanvas.style.width = window.innerWidth + 'px';
+      confettiCanvas.style.height = window.innerHeight + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
     }
     resizeCanvas();
     window.addEventListener('resize', () => setTimeout(resizeCanvas, 120));
@@ -208,31 +206,27 @@ cd my-website
     function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
     function getRandomAnswer(){
-      const cats = Object.keys(ANSWERS);
-      const cat = cats[Math.floor(Math.random()*cats.length)];
-      // 从该类别和 generic 混合选择，增加多样性
+      const keys = Object.keys(ANSWERS);
+      const cat = keys[Math.floor(Math.random()*keys.length)];
       const pool = ANSWERS[cat].concat(ANSWERS.generic);
       const text = pickRandom(pool);
       return {text, cat};
     }
 
-    // 文字逐字显示（返回 Promise）
-    function typeText(targetEl, text, opts = {}) {
-      const delayMin = opts.delayMin ?? 8;
-      const delayMax = opts.delayMax ?? 28;
+    // 逐字打字动画（Promise）
+    function typeText(el, text, min=8, max=26){
       return new Promise(async (resolve) => {
-        targetEl.textContent = '';
-        for (let i = 0; i < text.length; i++) {
-          targetEl.textContent += text[i];
-          // small variable delay
-          const t = delayMin + Math.random() * (delayMax - delayMin);
+        el.textContent = '';
+        for(let i=0;i<text.length;i++){
+          el.textContent += text[i];
+          const t = min + Math.random() * (max - min);
           await new Promise(r => setTimeout(r, t));
         }
         resolve();
       });
     }
 
-    // 短暂 confetti 泡沫
+    // 简短的 confetti 动画
     function sparkleConfetti(){
       const pieces = [];
       const w = window.innerWidth, h = window.innerHeight;
@@ -265,56 +259,55 @@ cd my-website
       }, 16);
     }
 
-    // 可靠的 reveal 流程：先打开书，清空文本，打字，显示 .show，触发 confetti
-    async function revealOnce(forceOpen = true){
+    // 可靠的揭晓函数：马上写入并显示
+    async function revealOnce(){
+      // 防止多次并行调用
+      if (revealOnce._running) return;
+      revealOnce._running = true;
       try {
         const {text, cat} = getRandomAnswer();
-        // 打开书视觉
-        if (forceOpen) bookEl.classList.add('open');
-        // 隐藏旧显示，再打字
+        // 确保书打开以显示结果
+        bookEl.classList.add('open');
+
+        // 清空并执行打字
         answerFront.classList.remove('show');
-        await new Promise(r => setTimeout(r, 260)); // 短延迟保证样式应用
-        await typeText(answerText, text, {delayMin:10, delayMax:32});
+        await new Promise(r => setTimeout(r, 180)); // 确保样式已更新
+        await typeText(answerText, text, 10, 30);
+
         // 显示并更新类别
         categoryEl.textContent = `类别：${cat}`;
-        // small delay for polish
-        await new Promise(r => setTimeout(r, 80));
+        await new Promise(r => setTimeout(r, 60));
         answerFront.classList.add('show');
-        // confetti
+
+        // 效果
         sparkleConfetti();
-      } catch (err) {
-        // 出错时至少把文本写上，避免空白
-        answerText.textContent = "发生错误，请在控制台查看 (或刷新页面)。";
+      } catch (e) {
+        console.error(e);
+        answerText.textContent = "无法生成答案，请检查控制台错误或刷新页面。";
         answerFront.classList.add('show');
-        console.error(err);
+      } finally {
+        revealOnce._running = false;
       }
     }
 
     // 事件绑定
-    anotherBtn.addEventListener('click', async ()=>{
+    anotherBtn.addEventListener('click', async () => {
       anotherBtn.disabled = true;
-      await revealOnce(true);
+      await revealOnce();
       setTimeout(()=> anotherBtn.disabled = false, 600);
     });
 
-    toFront.addEventListener('click', ()=>{
-      // 轻微回页效果：关闭再打开
+    toFront.addEventListener('click', () => {
       bookEl.classList.remove('open');
       setTimeout(()=> bookEl.classList.add('open'), 80);
     });
 
-    // 首次加载自动揭晓
-    window.addEventListener('load', async ()=>{
-      // 首次显示友好提示（瞬间），然后揭晓真正答案
-      answerText.textContent = "页面正在准备答案，请稍候…";
-      answerFront.classList.add('show');
-      // 给一点时间让页面完成渲染和样式计算
-      setTimeout(async ()=>{
-        // 隐藏提示并揭晓真实内容
-        answerFront.classList.remove('show');
-        await revealOnce(true);
-      }, 700);
+    // 页面加载后直接揭晓（短延迟以确保字体和样式加载）
+    window.addEventListener('load', async () => {
+      // 轻微延迟避免竞态问题，直接 reveal 一次
+      setTimeout(() => revealOnce(), 320);
     });
   </script>
 </body>
 </html>
+
