@@ -5,76 +5,64 @@ cd my-website
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>答案之书 — 自动揭晓（修复版）</title>
+  <title>答案之书</title>
   <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..72,400;8..72,700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root{
       --bg1:#0f1724; --bg2:#071028;
       --card:#f8f6f2; --accent:#ffb86b;
-      --muted: #a8b3c6; --glass: rgba(255,255,255,0.06);
     }
     @media (prefers-color-scheme: light){
       :root{
         --bg1:#f6f7fb; --bg2:#eef2ff;
-        --card:#ffffff; --accent:#ff8a6b;
-        --muted:#4b5563; --glass: rgba(0,0,0,0.03);
+        --card:#111; --accent:#ff8a6b;
       }
     }
 
-    html,body{height:100%; margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
+    html,body{height:100%; margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
     body{
       background: radial-gradient(1200px 600px at 10% 20%, rgba(255,200,160,0.06), transparent),
                   radial-gradient(900px 400px at 90% 80%, rgba(160,200,255,0.04), transparent),
                   linear-gradient(135deg,var(--bg1), var(--bg2));
       min-height:100vh;
       display:flex; align-items:center; justify-content:center;
-      padding:48px;
+      padding:24px;
       color:var(--card);
       overflow:hidden;
     }
 
-    .blob{ position:absolute; width:520px; height:520px; border-radius:50%; filter: blur(60px); opacity:0.18; transform: translate3d(0,0,0); mix-blend-mode: screen; pointer-events:none; }
-    .blob.a{background:linear-gradient(90deg,#ff6b6b,#ffb86b); left:-120px; top:-80px; animation: floatA 8s ease-in-out infinite;}
-    .blob.b{background:linear-gradient(90deg,#5bd3ff,#6b8cff); right:-140px; bottom:-100px; animation: floatB 10s ease-in-out infinite;}
+    /* decorative blobs */
+    .blob{ position:absolute; width:520px; height:520px; border-radius:50%; filter: blur(60px); opacity:0.16; mix-blend-mode: screen; pointer-events:none; }
+    .blob.a{background:linear-gradient(90deg,#ff6b6b,#ffb86b); left:-120px; top:-80px; animation: floatA 9s ease-in-out infinite;}
+    .blob.b{background:linear-gradient(90deg,#5bd3ff,#6b8cff); right:-140px; bottom:-100px; animation: floatB 11s ease-in-out infinite;}
     @keyframes floatA{0%{transform:translateY(0)}50%{transform:translateY(-24px)}100%{transform:translateY(0)}}
     @keyframes floatB{0%{transform:translateY(0)}50%{transform:translateY(28px)}100%{transform:translateY(0)}}
 
-    .stage{ max-width:980px; width:100%; display:grid; grid-template-columns: 1fr 420px; gap:28px; align-items:center; }
-    @media (max-width:980px){ .stage{ grid-template-columns: 1fr; } }
+    /* center book */
+    .book-wrap{ perspective:1400px; width:min(720px,92vw); max-width:92vw; height:420px; display:grid; place-items:center; }
+    .book{ width:100%; max-width:720px; height:100%; position:relative; transform-style:preserve-3d; }
+    .book-shell{ position:absolute; inset:0; border-radius:16px; background: linear-gradient(180deg,#fff,#f6f3f0); box-shadow: 0 24px 60px rgba(2,6,23,0.55); display:flex; align-items:center; justify-content:center; transform-origin:left center; transition: transform 900ms cubic-bezier(.2,.9,.28,1); overflow:hidden; padding:28px; color:#111; }
+    .page{ width:100%; height:100%; background:linear-gradient(180deg,#fff,#fbf8f6); border-radius:12px; position:absolute; left:10px; top:10px; box-shadow: inset 0 -10px 36px rgba(0,0,0,0.03); transform-origin:left center; backface-visibility:hidden; display:flex; flex-direction:column; padding:34px; }
+    .page.back{ transform: rotateY(-180deg); left:16px; top:16px; }
 
-    .intro{ color:var(--card); padding:28px; border-radius:14px; background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent); box-shadow: 0 10px 30px rgba(2,6,23,0.45); backdrop-filter: blur(6px); }
-    .brand{ display:flex; gap:12px; align-items:center; }
-    .logo{ width:64px; height:64px; border-radius:12px; background:linear-gradient(135deg,var(--accent), #ff6b9a); display:grid; place-items:center; font-weight:700; font-family: "Source Serif 4", serif; color:#fff; box-shadow: 0 6px 18px rgba(0,0,0,0.28); transform: rotate(-6deg); }
-    h1{ margin:12px 0 6px; font-family:"Source Serif 4", serif; font-weight:700; font-size:28px; color:var(--card); }
-    p.lead{ margin:0 0 12px; color:var(--muted); line-height:1.6; }
+    .book.open .book-shell{ transform: rotateY(-18deg) translateX(-12px) scale(1.01); }
+    .book.open .page.front{ transform: rotateY(-160deg); box-shadow: -36px 18px 100px rgba(2,6,23,0.5); }
+    .book.open .page.back{ transform: rotateY(0deg); }
 
-    .book-wrap{ perspective:1400px; display:flex; align-items:center; justify-content:center; gap:18px; }
-    .book { width: 420px; max-width:92vw; height: 320px; position:relative; transform-style:preserve-3d; }
-    .book-shell{ position:absolute; inset:0; border-radius:14px; background: linear-gradient(180deg,#fff,#f6f3f0); box-shadow: 0 16px 40px rgba(2,6,23,0.5); display:flex; align-items:center; justify-content:center; transform-origin:left center; transition: transform 900ms cubic-bezier(.2,.9,.28,1); overflow:hidden; padding:22px; color:#111; }
-    .page { width:100%; height:100%; background:linear-gradient(180deg,#fff,#fbf8f6); border-radius:10px; position:absolute; left:8px; top:8px; box-shadow: inset 0 -8px 30px rgba(0,0,0,0.02); transform-origin:left center; backface-visibility:hidden; display:flex; flex-direction:column; padding:28px; }
-    .page.back { transform: rotateY(-180deg); left:12px; top:12px; }
-    .book.open .book-shell{ transform: rotateY(-18deg) translateX(-10px) scale(1.01); }
-    .book.open .page.front { transform: rotateY(-160deg); box-shadow: -30px 12px 80px rgba(2,6,23,0.5); }
-    .book.open .page.back { transform: rotateY(0deg); }
+    .answer{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; text-align:center; }
+    .text{ font-family:"Source Serif 4", serif; font-size:28px; line-height:1.45; color:#111; opacity:0; transform: translateY(8px); transition: all 420ms cubic-bezier(.2,.9,.28,1) 120ms; white-space:pre-wrap; max-width:86%; word-break:break-word; }
+    .show .text{ opacity:1; transform: translateY(0); }
 
-    .reveal{ margin-top:12px; display:grid; gap:10px; align-content:center; flex:1; }
-    .answer{ font-family:"Source Serif 4", serif; font-size:20px; color:#111; background:linear-gradient(180deg,#fff,#fff); padding:16px; border-radius:10px; min-height:96px; display:grid; align-items:center; justify-items:center; text-align:center; box-shadow: 0 8px 30px rgba(11,22,40,0.06); overflow:hidden; position:relative; }
-    .answer .text{ color:#111; opacity:0; transform:translateY(6px); transition: all 420ms cubic-bezier(.2,.9,.28,1) 120ms; line-height:1.5; padding:0 6px; white-space:pre-wrap; word-break:break-word; }
-    .answer.show .text{ opacity:1; transform:translateY(0); }
+    /* bookmark detail */
+    .bookmark{ position:absolute; right:18px; top:18px; width:44px; height:56px; background:linear-gradient(180deg,#fff3e6,#fff); border-radius:6px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); display:grid; place-items:center; font-weight:700; color:var(--accent); }
 
-    .meta{ display:flex; justify-content:space-between; align-items:center; margin-top:8px; color:var(--muted); font-size:13px; }
-    .bookmark{ position:absolute; right:18px; top:14px; width:48px; height:64px; background:linear-gradient(180deg,#fff3e6, #fff); border-radius:6px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); display:grid; place-items:center; font-weight:700; color:var(--accent); }
-
-    .btn{ padding:10px 14px; border-radius:10px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-weight:600; font-size:14px; }
-    .btn.primary{ background:linear-gradient(90deg,var(--accent), #ff6b6b); color:#fff; box-shadow: 0 6px 18px rgba(255,120,80,0.12); }
-    .btn.ghost{ background:transparent; color:var(--muted); border:1px solid rgba(0,0,0,0.06); }
-
-    canvas#confetti{ position:absolute; inset:0; pointer-events:none; z-index:40; }
-    footer.note{ margin-top:18px; color:var(--muted); font-size:13px; }
+    /* confetti canvas */
+    canvas#confetti{ position:fixed; inset:0; pointer-events:none; z-index:40; }
 
     @media (max-width:560px){
-      .book{ height:360px; }
-      .page{ padding:18px; }
+      .book-wrap{ height:360px; }
+      .text{ font-size:20px; }
+      .page{ padding:20px; }
     }
   </style>
 </head>
@@ -82,116 +70,56 @@ cd my-website
   <div class="blob a" aria-hidden="true"></div>
   <div class="blob b" aria-hidden="true"></div>
 
-  <canvas id="confetti" width="1200" height="900" aria-hidden="true"></canvas>
+  <canvas id="confetti" aria-hidden="true"></canvas>
 
-  <main class="stage" role="main" aria-labelledby="main-title">
-    <section class="intro" aria-labelledby="main-title">
-      <div class="brand">
-        <div class="logo">答</div>
-        <div>
-          <h1 id="main-title">答案之书 <span style="font-size:13px; color:var(--muted); font-weight:600;">— 自动揭晓</span></h1>
-          <p class="lead">打开页面即可随机揭晓一句启发性的建议。点击“再来一条”获取新内容。</p>
-        </div>
-      </div>
-      <p style="color:var(--muted); margin-top:12px;">如果你希望页面每次固定显示某一类（如“感情”），告诉我我会改成固定类别版本。</p>
-    </section>
-
-    <aside class="book-wrap" aria-label="答案书">
-      <div class="book" id="book" aria-live="polite">
-        <div class="book-shell" role="region" aria-label="书壳">
-          <div class="page front" id="front">
-            <div class="bookmark" aria-hidden="true">今</div>
-
-            <div class="reveal">
-              <div class="answer" id="answerFront" role="status" aria-live="polite">
-                <div class="text" id="answerText">——</div>
-              </div>
-
-              <div class="meta">
-                <div id="category" style="text-transform:capitalize;color:var(--muted)">类别：—</div>
-                <div style="display:flex; gap:8px;">
-                  <button id="anotherBtn" class="btn ghost" aria-label="再来一条">再来一条</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="page back" id="back" aria-hidden="true">
-            <div style="font-size:14px;color:var(--muted);margin-bottom:10px;">说明</div>
-            <div style="flex:1; display:flex; align-items:center; justify-content:center;">
-              <div style="text-align:center; max-width:320px;">
-                <h2 style="font-family:'Source Serif 4', serif; margin:6px 0;">已自动揭晓</h2>
-                <p style="color:var(--muted); line-height:1.6; font-size:15px;">页面从内置答案库随机抽取并展示一句。可刷新或点击「再来一条」。</p>
-              </div>
-            </div>
-            <div style="display:flex; gap:8px; justify-content:flex-end;">
-              <button id="toFront" class="btn ghost">返回</button>
-            </div>
+  <div class="book-wrap" role="main" aria-live="polite">
+    <div class="book" id="book">
+      <div class="book-shell">
+        <div class="page front" id="front">
+          <div class="bookmark" aria-hidden="true">今</div>
+          <div class="answer" id="answerFront" role="status" aria-live="polite">
+            <div class="text" id="answerText"></div>
           </div>
         </div>
+
+        <div class="page back" id="back" aria-hidden="true">
+          <div style="margin:auto; text-align:center; max-width:84%;">
+            <div style="font-family:'Source Serif 4', serif; font-size:20px; color:#222;">—</div>
+          </div>
+        </div>
+
       </div>
-    </aside>
-  </main>
+    </div>
+  </div>
 
   <script>
-    // 答案库（可按需扩充）
-    const ANSWERS = {
-      love: [
-        "真心与时间，会让答案逐渐明朗。",
-        "放下结局的执念，去感受当下的温柔。",
-        "勇敢一点，坦诚一次，结果会更清晰。",
-        "不妨先做好自己，再去决定彼此的下一步。",
-        "听见自己的需要，才有能力选择对的方向。"
-      ],
-      career: [
-        "把每天能控制的小事做到极致，机会会靠近。",
-        "换个角度看问题，常常会发现新的路径。",
-        "风险与成长并存，衡量后再踏出下一步。",
-        "对外界的判断要有，但内心的声音更重要。",
-        "行动会带来信息，信息会带来方向。"
-      ],
-      money: [
-        "稳健优于冒进，长期回报来自持续投入。",
-        "做好边界与预案，财富会更可持续。",
-        "把一部分钱用于学习，这是对未来最保险的赌注。",
-        "现在的节制，可能换来未来更多选择。",
-        "小幅度的持续积累，比一次性博弈更可靠。"
-      ],
-      health: [
-        "小的改变（睡眠 / 饮食 /走动）常常带来巨大差别。",
-        "身体的提醒不要忽视，早一些处理更省力。",
-        "给自己设置简单的日常习惯，渐进胜过暴力改变。",
-        "情绪与身体常常互相影响，关照两者。",
-        "保持一致的作息，健康会悄然回报你。"
-      ],
-      yesno: [
-        "是的，时机在你这一边。",
-        "不，现在还不是最合适的时机。",
-        "答案并不重要，重要的是你的内心是否平静。",
-        "有可能，但需要你主动推动。",
-        "保持观察，短期内会有更明确的信号。"
-      ],
-      generic: [
-        "听从直觉，但用理智为它把关。",
-        "有时等待也是一种答案。",
-        "你已经比你想象的更接近答案了。",
-        "跨出一步，视野才会不一样。",
-        "把目光放在能控制之事，其他顺其自然。"
-      ]
-    };
+    const ANSWERS = [
+      "真心与时间，会让答案逐渐明朗。",
+      "放下结局的执念，去感受当下的温柔。",
+      "勇敢一点，坦诚一次，结果会更清晰。",
+      "不妨先做好自己，再去决定彼此的下一步。",
+      "把每天能控制的小事做到极致，机会会靠近。",
+      "换个角度看问题，常常会发现新的路径。",
+      "稳健优于冒进，长期回报来自持续投入。",
+      "小的改变（睡眠 / 饮食 /走动）常常带来巨大差别。",
+      "听从直觉，但用理智为它把关。",
+      "有时等待也是一种答案。",
+      "你已经比你想象的更接近答案了。",
+      "跨出一步，视野才会不一样。",
+      "把目光放在能控制之事，其他顺其自然。",
+      "行动会带来信息，信息会带来方向。",
+      "保持一致的作息，健康会悄然回报你。"
+    ];
 
-    // DOM
     const answerText = document.getElementById('answerText');
     const answerFront = document.getElementById('answerFront');
-    const categoryEl = document.getElementById('category');
     const bookEl = document.getElementById('book');
-    const anotherBtn = document.getElementById('anotherBtn');
-    const toFront = document.getElementById('toFront');
-    const confettiCanvas = document.getElementById('confetti');
-    const ctx = confettiCanvas.getContext('2d');
 
-    // 画布 DPI 适配
+    const confettiCanvas = document.getElementById('confetti');
+    const ctx = confettiCanvas.getContext && confettiCanvas.getContext('2d');
+
     function resizeCanvas(){
+      if(!ctx) return;
       const dpr = Math.max(1, window.devicePixelRatio || 1);
       confettiCanvas.width = Math.round(window.innerWidth * dpr);
       confettiCanvas.height = Math.round(window.innerHeight * dpr);
@@ -205,29 +133,20 @@ cd my-website
 
     function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
-    function getRandomAnswer(){
-      const keys = Object.keys(ANSWERS);
-      const cat = keys[Math.floor(Math.random()*keys.length)];
-      const pool = ANSWERS[cat].concat(ANSWERS.generic);
-      const text = pickRandom(pool);
-      return {text, cat};
-    }
-
-    // 逐字打字动画（Promise）
-    function typeText(el, text, min=8, max=26){
+    function typeText(el, text, min=8, max=28){
       return new Promise(async (resolve) => {
         el.textContent = '';
         for(let i=0;i<text.length;i++){
           el.textContent += text[i];
-          const t = min + Math.random() * (max - min);
+          const t = min + Math.random()*(max-min);
           await new Promise(r => setTimeout(r, t));
         }
         resolve();
       });
     }
 
-    // 简短的 confetti 动画
     function sparkleConfetti(){
+      if(!ctx) return;
       const pieces = [];
       const w = window.innerWidth, h = window.innerHeight;
       for(let i=0;i<80;i++){
@@ -247,7 +166,7 @@ cd my-website
         pieces.forEach(p=>{
           p.x += p.vx;
           p.y += p.vy;
-          p.vy += 0.24;
+          p.vy += 0.22;
           p.life--;
           ctx.fillStyle = p.color;
           ctx.beginPath();
@@ -259,53 +178,25 @@ cd my-website
       }, 16);
     }
 
-    // 可靠的揭晓函数：马上写入并显示
-    async function revealOnce(){
-      // 防止多次并行调用
-      if (revealOnce._running) return;
-      revealOnce._running = true;
-      try {
-        const {text, cat} = getRandomAnswer();
-        // 确保书打开以显示结果
-        bookEl.classList.add('open');
-
-        // 清空并执行打字
-        answerFront.classList.remove('show');
-        await new Promise(r => setTimeout(r, 180)); // 确保样式已更新
-        await typeText(answerText, text, 10, 30);
-
-        // 显示并更新类别
-        categoryEl.textContent = `类别：${cat}`;
-        await new Promise(r => setTimeout(r, 60));
-        answerFront.classList.add('show');
-
-        // 效果
-        sparkleConfetti();
-      } catch (e) {
-        console.error(e);
-        answerText.textContent = "无法生成答案，请检查控制台错误或刷新页面。";
-        answerFront.classList.add('show');
-      } finally {
-        revealOnce._running = false;
-      }
+    async function reveal(){
+      const text = pickRandom(ANSWERS);
+      // open book
+      bookEl.classList.add('open');
+      // ensure previous hidden
+      answerFront.classList.remove('show');
+      await new Promise(r => setTimeout(r, 260));
+      // type
+      await typeText(answerText, text, 10, 36);
+      // show
+      answerFront.classList.add('show');
+      // confetti
+      sparkleConfetti();
     }
 
-    // 事件绑定
-    anotherBtn.addEventListener('click', async () => {
-      anotherBtn.disabled = true;
-      await revealOnce();
-      setTimeout(()=> anotherBtn.disabled = false, 600);
-    });
-
-    toFront.addEventListener('click', () => {
-      bookEl.classList.remove('open');
-      setTimeout(()=> bookEl.classList.add('open'), 80);
-    });
-
-    // 页面加载后直接揭晓（短延迟以确保字体和样式加载）
-    window.addEventListener('load', async () => {
-      // 轻微延迟避免竞态问题，直接 reveal 一次
-      setTimeout(() => revealOnce(), 320);
+    // Auto reveal on load
+    window.addEventListener('load', () => {
+      // small delay to ensure fonts/styles ready then reveal
+      setTimeout(reveal, 320);
     });
   </script>
 </body>
