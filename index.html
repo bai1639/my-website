@@ -1,20 +1,309 @@
 
 cd my-website
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="zh-CN">
 <head>
-  <meta http-equiv="refresh" content="5">
-  <title>远程监控相机</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>答案之书 — 现场揭晓（自动）</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..72,400;8..72,700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    img { border:4px solid #007acc; width:640px; }
-    body { font-family:sans-serif; background:#f5f5f5; text-align:center;}
+    :root{
+      --bg1:#0f1724; --bg2:#071028;
+      --card:#f8f6f2; --accent:#ffb86b;
+      --muted: #a8b3c6; --glass: rgba(255,255,255,0.06);
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg1:#f6f7fb; --bg2:#eef2ff;
+        --card:#ffffff; --accent:#ff8a6b;
+        --muted:#4b5563; --glass: rgba(0,0,0,0.03);
+      }
+    }
+    html,body{height:100%; margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
+    body{
+      background: radial-gradient(1200px 600px at 10% 20%, rgba(255,200,160,0.06), transparent),
+                  radial-gradient(900px 400px at 90% 80%, rgba(160,200,255,0.04), transparent),
+                  linear-gradient(135deg,var(--bg1), var(--bg2));
+      min-height:100vh;
+      display:flex; align-items:center; justify-content:center;
+      padding:48px;
+      color:var(--card);
+      overflow:hidden;
+    }
+    .blob{ position:absolute; width:520px; height:520px; border-radius:50%; filter: blur(60px); opacity:0.18; transform: translate3d(0,0,0); mix-blend-mode: screen; pointer-events:none; }
+    .blob.a{background:linear-gradient(90deg,#ff6b6b,#ffb86b); left:-120px; top:-80px; animation: floatA 8s ease-in-out infinite;}
+    .blob.b{background:linear-gradient(90deg,#5bd3ff,#6b8cff); right:-140px; bottom:-100px; animation: floatB 10s ease-in-out infinite;}
+    @keyframes floatA{0%{transform:translateY(0)}50%{transform:translateY(-24px)}100%{transform:translateY(0)}}
+    @keyframes floatB{0%{transform:translateY(0)}50%{transform:translateY(28px)}100%{transform:translateY(0)}}
+
+    .stage{ max-width:980px; width:100%; display:grid; grid-template-columns: 1fr 420px; gap:28px; align-items:center; }
+    @media (max-width:980px){ .stage{ grid-template-columns: 1fr; } }
+
+    .intro{ color:var(--card); padding:28px; border-radius:14px; background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent); box-shadow: 0 10px 30px rgba(2,6,23,0.45); backdrop-filter: blur(6px); }
+    .brand{ display:flex; gap:12px; align-items:center; }
+    .logo{ width:64px; height:64px; border-radius:12px; background:linear-gradient(135deg,var(--accent), #ff6b9a); display:grid; place-items:center; font-weight:700; font-family: "Source Serif 4", serif; color:#fff; box-shadow: 0 6px 18px rgba(0,0,0,0.28); transform: rotate(-6deg); }
+    h1{ margin:12px 0 6px; font-family:"Source Serif 4", serif; font-weight:700; font-size:28px; color:var(--card); }
+    p.lead{ margin:0 0 12px; color:var(--muted); line-height:1.6; }
+
+    .book-wrap{ perspective:1400px; display:flex; align-items:center; justify-content:center; gap:18px; }
+    .book { width: 420px; max-width:92vw; height: 320px; position:relative; transform-style:preserve-3d; }
+    .book-shell{ position:absolute; inset:0; border-radius:14px; background: linear-gradient(180deg,#fff,#f6f3f0); box-shadow: 0 16px 40px rgba(2,6,23,0.5); display:flex; align-items:center; justify-content:center; transform-origin:left center; transition: transform 900ms cubic-bezier(.2,.9,.28,1); overflow:hidden; padding:22px; color:#111; }
+    .page { width:100%; height:100%; background:linear-gradient(180deg,#fff,#fbf8f6); border-radius:10px; position:absolute; left:8px; top:8px; box-shadow: inset 0 -8px 30px rgba(0,0,0,0.02); transform-origin:left center; backface-visibility:hidden; display:flex; flex-direction:column; padding:28px; }
+    .page.back { transform: rotateY(-180deg); left:12px; top:12px; }
+    .book.open .book-shell{ transform: rotateY(-18deg) translateX(-10px) scale(1.01); }
+    .book.open .page.front { transform: rotateY(-160deg); box-shadow: -30px 12px 80px rgba(2,6,23,0.5); }
+    .book.open .page.back { transform: rotateY(0deg); }
+
+    .reveal{ margin-top:12px; display:grid; gap:10px; align-content:center; flex:1; }
+    .answer{ font-family:"Source Serif 4", serif; font-size:20px; color:#222; background:linear-gradient(180deg,#fff,#fff); padding:16px; border-radius:10px; min-height:96px; display:grid; align-items:center; justify-items:center; text-align:center; box-shadow: 0 8px 30px rgba(11,22,40,0.06); overflow:hidden; position:relative; }
+    .answer .text{ color:#111; opacity:0; transform:translateY(6px); transition: all 420ms cubic-bezier(.2,.9,.28,1) 220ms; line-height:1.5; padding:0 6px; }
+    .answer.show .text{ opacity:1; transform:translateY(0); }
+
+    .meta{ display:flex; justify-content:space-between; align-items:center; margin-top:8px; color:var(--muted); font-size:13px; }
+
+    .bookmark{ position:absolute; right:18px; top:14px; width:48px; height:64px; background:linear-gradient(180deg,#fff3e6, #fff); border-radius:6px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); display:grid; place-items:center; font-weight:700; color:var(--accent); }
+
+    .btn{ padding:10px 14px; border-radius:10px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-weight:600; font-size:14px; }
+    .btn.primary{ background:linear-gradient(90deg,var(--accent), #ff6b6b); color:#fff; box-shadow: 0 6px 18px rgba(255,120,80,0.12); }
+    .btn.ghost{ background:transparent; color:var(--muted); border:1px solid rgba(0,0,0,0.06); }
+
+    canvas#confetti{ position:absolute; inset:0; pointer-events:none; z-index:40; }
+    footer.note{ margin-top:18px; color:var(--muted); font-size:13px; }
+
+    @media (max-width:560px){
+      .book{ height:360px; }
+      .page{ padding:18px; }
+    }
   </style>
 </head>
 <body>
-  <h2>最新监控画面</h2>
-  <img src="https://esp32-cam-monitor.oss-cn-shanghai.aliyuncs.com/snapshots/current.jpg" alt="CAM画面"/>
-</body>
+  <div class="blob a" aria-hidden="true"></div>
+  <div class="blob b" aria-hidden="true"></div>
 
+  <canvas id="confetti" width="1200" height="900" aria-hidden="true"></canvas>
+
+  <main class="stage" role="main" aria-labelledby="main-title">
+    <section class="intro" aria-labelledby="main-title">
+      <div class="brand">
+        <div class="logo">答</div>
+        <div>
+          <h1 id="main-title">答案之书 <span style="font-size:13px; color:var(--muted); font-weight:600;">— 自动揭晓</span></h1>
+          <p class="lead">打开页面即可自动展示一句引导性的答案，页面保留“再来一条”用于获取新的灵感。</p>
+        </div>
+      </div>
+
+      <p style="color:var(--muted); margin-top:12px;">提示：这是无输入版本 —— 页面打开即会显示答案；也可点击“再来一条”获得另一条提示。</p>
+
+      <footer class="note">可托管在任意静态站点（GitHub Pages / Netlify / Vercel 等）。</footer>
+    </section>
+
+    <aside class="book-wrap" aria-label="答案书">
+      <div class="book" id="book" aria-live="polite">
+        <div class="book-shell" role="region" aria-label="书壳">
+          <div class="page front" id="front">
+            <div class="bookmark" aria-hidden="true">今</div>
+
+            <div style="display:flex; gap:12px; align-items:center; margin-bottom:8px;">
+              <!-- 隐藏输入：保留结构以便未来扩展，但对用户不可见 -->
+              <input id="question" class="question-input" type="search" placeholder="" aria-hidden="true" style="display:none;">
+              <button id="revealBtn" class="btn primary" title="揭晓答案" aria-hidden="true" style="display:none;">揭晓</button>
+            </div>
+
+            <div class="reveal">
+              <div class="answer" id="answerFront" role="status" aria-live="polite">
+                <div class="text" id="answerText">正在聆听……</div>
+              </div>
+
+              <div class="meta">
+                <div id="category" style="text-transform:capitalize;color:var(--muted)">类别：自动 / 随机</div>
+                <div style="display:flex; gap:8px;">
+                  <button id="anotherBtn" class="btn ghost" aria-label="再来一条">再来一条</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="page back" id="back" aria-hidden="true">
+            <div style="font-size:14px;color:var(--muted);margin-bottom:10px;">答案之书 · 智能揭晓</div>
+            <div style="flex:1; display:flex; align-items:center; justify-content:center;">
+              <div style="text-align:center; max-width:320px;">
+                <h2 style="font-family:'Source Serif 4', serif; margin:6px 0;">你的答案</h2>
+                <p style="color:var(--muted); line-height:1.6; font-size:15px;">页面自动从丰富的语句库中抽取一句启发性的建议。每次刷新或点击“再来一条”都会给出新内容。</p>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px; justify-content:flex-end;">
+              <button id="toFront" class="btn ghost">返回</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    /* ===== 数据与映射（可按需扩展） ===== */
+    const ANSWERS = {
+      love: [
+        "真心与时间，会让答案逐渐明朗。",
+        "放下结局的执念，去感受当下的温柔。",
+        "勇敢一点，坦诚一次，结果会更清晰。",
+        "不妨先做好自己，再去决定彼此的下一步。"
+      ],
+      career: [
+        "把每天能控制的小事做到极致，机会会靠近。",
+        "换个角度看问题，常常会发现新的路径。",
+        "风险与成长并存，衡量后再踏出下一步。",
+        "对外界的判断要有，但内心的声音更重要。"
+      ],
+      money: [
+        "稳健优于冒进，长期回报来自持续投入。",
+        "做好边界与预案，财富会更可持续。",
+        "把一部分钱用于学习，这是对未来最保险的赌注。",
+        "现在的节制，可能换来未来更多选择。"
+      ],
+      health: [
+        "小的改变（睡眠 / 饮食 /走动）常常带来巨大差别。",
+        "身体的提醒不要忽视，早一些处理更省力。",
+        "给自己设置简单的日常习惯，渐进胜过暴力改变。",
+        "情绪与身体常常互相影响，关照两者。"
+      ],
+      yesno: [
+        "是的，时机在你这一边。",
+        "不，现在还不是最合适的时机。",
+        "答案并不重要，重要的是你的内心是否平静。",
+        "有可能，但需要你主动推动。"
+      ],
+      generic: [
+        "听从直觉，但用理智为它把关。",
+        "有时等待也是一种答案。",
+        "你已经比你想象的更接近答案了。",
+        "跨出一步，视野才会不一样。"
+      ]
+    };
+
+    const KEYWORD_MAP = [
+      {k: ["爱","喜欢","分手","恋","在一起","感情","对象","他","她"], cat:"love"},
+      {k: ["工作","跳槽","面试","职业","升职","事业","公司"], cat:"career"},
+      {k: ["投资","钱","理财","工资","买房","财富","开支"], cat:"money"},
+      {k: ["病","健康","体检","精神","锻炼","睡眠"], cat:"health"},
+      {k: ["吗","会不会","能否","能不能"], cat:"yesno"}
+    ];
+
+    /* ===== DOM ===== */
+    const answerText = document.getElementById('answerText');
+    const answerFront = document.getElementById('answerFront');
+    const categoryEl = document.getElementById('category');
+    const bookEl = document.getElementById('book');
+    const anotherBtn = document.getElementById('anotherBtn');
+    const toFront = document.getElementById('toFront');
+    const confettiCanvas = document.getElementById('confetti');
+    const ctx = confettiCanvas.getContext('2d');
+
+    /* ===== Canvas resize ===== */
+    function resizeCanvas(){
+      confettiCanvas.width = window.innerWidth * devicePixelRatio;
+      confettiCanvas.height = window.innerHeight * devicePixelRatio;
+      confettiCanvas.style.width = window.innerWidth + 'px';
+      confettiCanvas.style.height = window.innerHeight + 'px';
+      ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    }
+    resizeCanvas();
+    window.addEventListener('resize', () => { setTimeout(resizeCanvas, 120); });
+
+    /* ===== Helpers ===== */
+    function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+    function getRandomAnswer(){
+      // 从所有类别中随机抽取一个答案，并返回所属类别
+      const cats = Object.keys(ANSWERS);
+      const cat = cats[Math.floor(Math.random()*cats.length)];
+      const text = pickRandom(ANSWERS[cat].concat(ANSWERS.generic));
+      return {text, cat};
+    }
+
+    async function revealAnswerAuto(fullText, catLabel){
+      // 打开书并执行打字动画
+      bookEl.classList.add('open');
+      answerFront.classList.remove('show');
+      await new Promise(r=>setTimeout(r, 420));
+      answerText.textContent = "";
+      const chars = Array.from(fullText);
+      for(let i=0;i<chars.length;i++){
+        answerText.textContent += chars[i];
+        if(i%5===0) await new Promise(r=>setTimeout(r, 10 + Math.random()*28));
+      }
+      await new Promise(r=>setTimeout(r, 60));
+      answerFront.classList.add('show');
+      categoryEl.textContent = `类别：${catLabel}`;
+      sparkleConfetti();
+    }
+
+    /* ===== Confetti ===== */
+    function sparkleConfetti(){
+      const pieces = [];
+      const w = window.innerWidth, h = window.innerHeight;
+      for(let i=0;i<90;i++){
+        pieces.push({
+          x: w*0.5 + (Math.random()-0.5)*260,
+          y: h*0.45 + (Math.random()-0.5)*120,
+          vx: (Math.random()-0.5)*8,
+          vy: -Math.random()*7 - 3,
+          life: 60 + Math.random()*60,
+          size: 6 + Math.random()*8,
+          color: ['#ffb86b','#ff6b6b','#6be4ff','#6b8cff'][Math.floor(Math.random()*4)]
+        });
+      }
+      let t=0;
+      const id = setInterval(()=>{
+        ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+        pieces.forEach(p=>{
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.24;
+          p.life--;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.ellipse(p.x, p.y, p.size, p.size*0.7, 0, 0, Math.PI*2);
+          ctx.fill();
+        });
+        t++;
+        if(t>160){ clearInterval(id); ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height); }
+      }, 16);
+    }
+
+    /* ===== 主流程：打开即揭晓 ===== */
+    async function autoReveal(){
+      const {text, cat} = getRandomAnswer();
+      await revealAnswerAuto(text, cat || '随机');
+    }
+
+    anotherBtn.addEventListener('click', async ()=>{
+      anotherBtn.disabled = true;
+      // 每次再来一条时显示新答案并短暂抖动翻页效果
+      await autoReveal();
+      setTimeout(()=>anotherBtn.disabled=false, 700);
+    });
+
+    toFront.addEventListener('click', ()=>{
+      // 回到书页（前页）
+      bookEl.classList.remove('open');
+      setTimeout(()=>bookEl.classList.add('open'), 80);
+    });
+
+    // 页面加载后自动揭晓（并在首屏带入小延迟以呈现动画）
+    window.addEventListener('load', async ()=>{
+      // 初始提示文字
+      answerText.textContent = "正在为你揭晓一句话……";
+      answerFront.classList.add('show');
+      // 轻微延迟后揭晓最终答案
+      setTimeout(async ()=>{
+        answerFront.classList.remove('show');
+        await autoReveal();
+      }, 900);
+    });
+  </script>
+</body>
 </html>
 
 
